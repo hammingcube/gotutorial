@@ -1,8 +1,14 @@
 package main
 
 import "fmt"
-import "os"
+import "net/http"
+
+
+func handleHelloRoute(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello World\n")
+}
 
 func main() {
-    fmt.Fprintf(os.Stdout, "Hello World\n")
+	http.HandleFunc("/hello", handleHelloRoute)
+	http.ListenAndServe(":8080", nil)
 }
