@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"go/build"
+	_ "go/build"
 	"log"
 	"net"
 	"net/http"
@@ -30,12 +30,9 @@ func main() {
 
 	if *baseFlag == "" {
 		// By default, the base is the blog package location.
-		p, err := build.Default.Import(packagePath, "", build.FindOnly)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Couldn't find the blog package: %v\n", err)
-			os.Exit(1)
-		}
-		*baseFlag = p.Dir
+		*baseFlag = filepath.Join("/go/src", packagePath)
+		fmt.Fprintf(os.Stderr, "Trying %s", *baseFlag)
+		//os.Exit(1)
 	}
 
 	ln, err := net.Listen("tcp", *httpFlag)
