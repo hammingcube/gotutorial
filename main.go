@@ -1,7 +1,10 @@
 package main
 
-import "fmt"
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+	"log"
+)
 
 
 func handleHelloRoute(w http.ResponseWriter, r *http.Request) {
@@ -10,5 +13,8 @@ func handleHelloRoute(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/hello", handleHelloRoute)
-	http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
 }
