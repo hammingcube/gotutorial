@@ -1,0 +1,16 @@
+Is this blog a ripoff of the original Go Blog?
+4 Feb 2015
+
+Madhav Jha
+
+* Introduction
+
+Before you guys crucify me for blatantly ripping off [[http://blog.golang.org/][the (original) Go Blog]], let
+me tell you a little more about the genesis of this blog.
+
+The following program prints the current time each second and then exits after
+three seconds. Try running it.
+
+.play -edit playground/time.go /^func main/,$
+
+How does this work? It is a collaboration between the back end, front end, and client.

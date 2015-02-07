@@ -4,11 +4,14 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"go/build"
+	"net/url"
 	"os"
-	_ "golang.org/x/tools/blog"
-	_ "golang.org/x/tools/playground/socket"
+	"path/filepath"
+	"golang.org/x/tools/blog"
+	"golang.org/x/tools/playground/socket"
 )
 
 const basePkg = "github.com/maddyonline/gotutorial"
@@ -31,6 +34,7 @@ func initBasePath(basePath *string) {
 	log.Printf("Using %s as directory for content and static files.", *basePath)
 }
 
+
 func main() {
 	httpAddr := flag.String("http", "127.0.0.1:3999", "HTTP service address (e.g., '127.0.0.1:3999')")
 	basePath := flag.String("base", "", "base path for slide template and static resources")
@@ -38,7 +42,36 @@ func main() {
 	flag.Parse()
 	initBasePath(basePath)
 
-	fmt.Printf(*originHost)
+	host, port, err := net.SplitHostPort(*httpAddr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	origin := &url.URL{Scheme: "http"}
+	if *originHost != "" {
+		origin.Host = net.JoinHostPort(*originHost, port)
+	} else {
+		origin.Host = *httpAddr
+	}
+	
+
+	srv, err := blog.NewServer(blog.Config{
+		ContentPath:  filepath.Join(*basePath, "articles"),
+		TemplatePath: filepath.Join(*basePath, "templates"),
+		Hostname:     host,
+		HomeArticles: 4,
+		FeedArticles: 4,
+		FeedTitle:    "Madhav's Blog",
+		PlayEnabled:  true,
+	})
+	if err != nil {
+		log.Fatalf("%v\n", err)
+	}
+
+	
+	http.Handle("/static/", http.FileServer(http.Dir(*basePath)))
+	http.Handle("/socket", socket.NewHandler(origin))
+	http.Handle("/", srv)
 
 	http.HandleFunc("/hello", handleHelloRoute)
 	log.Printf("Listening on %s\n", *httpAddr)
