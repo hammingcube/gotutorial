@@ -1,22 +1,22 @@
-// +build OMIT
-
 package main
-
+ 
 import (
 	"fmt"
-	"time"
 )
-
+ 
+func fibonacci(n int, c chan int) {
+	x, y := 0, 1
+	for i := 0; i < n; i++ {
+		c <- x
+		x, y = y, x+y
+	}
+	close(c)
+}
+ 
 func main() {
-	stop := time.After(3 * time.Second)
-	tick := time.NewTicker(1 * time.Second)
-	defer tick.Stop()
-	for {
-		select {
-		case <-tick.C:
-			fmt.Println(time.Now())
-		case <-stop:
-			return
-		}
+	c := make(chan int, 10)
+	go fibonacci(cap(c), c)
+	for i := range c {
+		fmt.Println(i)
 	}
 }

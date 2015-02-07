@@ -3,61 +3,55 @@ package main
 import (
 	"flag"
 	"fmt"
+	"go/build"
 	"log"
 	"net"
 	"net/http"
-	"go/build"
 	"net/url"
 	"os"
 	"path/filepath"
+
 	"golang.org/x/tools/blog"
 	"golang.org/x/tools/playground/socket"
 )
 
-const basePkg = "github.com/maddyonline/gotutorial"
-var basePath = ""
+const (
+	packagePath = "github.com/maddyonline/gotutorial"
+)
 
-func handleHelloRoute(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello World\n")
-}
-
-func initBasePath(basePath *string) {
-	if *basePath == "" {
-		p, err := build.Default.Import(basePkg, "", build.FindOnly)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Couldn't find blog files: %v\n", err)
-			fmt.Fprintf(os.Stderr, basePathMessage, basePkg)
-			os.Exit(1)
-		}
-		*basePath = p.Dir
-	}
-	log.Printf("Using %s as directory for content and static files.", *basePath)
-}
-
+var (
+	httpFlag   = flag.String("http", "localhost:8080", "HTTP listen address")
+	originFlag = flag.String("origin", "", "web socket origin for Go Playground (e.g. localhost)")
+	baseFlag   = flag.String("base", "", "base path for articles and resources")
+)
 
 func main() {
-	httpAddr := flag.String("http", "127.0.0.1:3999", "HTTP service address (e.g., '127.0.0.1:3999')")
-	basePath := flag.String("base", "", "base path for slide template and static resources")
-	originHost := flag.String("orighost", "", "host component of web origin URL (e.g., 'localhost')")
 	flag.Parse()
-	initBasePath(basePath)
 
-	host, port, err := net.SplitHostPort(*httpAddr)
+	if *baseFlag == "" {
+		// By default, the base is the blog package location.
+		p, err := build.Default.Import(packagePath, "", build.FindOnly)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Couldn't find the blog package: %v\n", err)
+			os.Exit(1)
+		}
+		*baseFlag = p.Dir
+	}
+
+	ln, err := net.Listen("tcp", *httpFlag)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer ln.Close()
+
+	host, port, err := net.SplitHostPort(*httpFlag)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	origin := &url.URL{Scheme: "http"}
-	if *originHost != "" {
-		origin.Host = net.JoinHostPort(*originHost, port)
-	} else {
-		origin.Host = *httpAddr
-	}
-	
-
 	srv, err := blog.NewServer(blog.Config{
-		ContentPath:  filepath.Join(*basePath, "articles"),
-		TemplatePath: filepath.Join(*basePath, "templates"),
+		ContentPath:  filepath.Join(*baseFlag, "articles"),
+		TemplatePath: filepath.Join(*baseFlag, "templates"),
 		Hostname:     host,
 		HomeArticles: 4,
 		FeedArticles: 4,
@@ -68,19 +62,15 @@ func main() {
 		log.Fatalf("%v\n", err)
 	}
 
-	
-	http.Handle("/static/", http.FileServer(http.Dir(*basePath)))
+	origin := &url.URL{Scheme: "http"}
+	if *originFlag != "" {
+		origin.Host = net.JoinHostPort(*originFlag, port)
+	} else {
+		origin.Host = *httpFlag
+	}
+
+	http.Handle("/static/", http.FileServer(http.Dir(*baseFlag)))
 	http.Handle("/socket", socket.NewHandler(origin))
 	http.Handle("/", srv)
-
-	http.HandleFunc("/hello", handleHelloRoute)
-	log.Printf("Listening on %s\n", *httpAddr)
-	log.Fatal(http.ListenAndServe(*httpAddr, nil))
+	log.Fatal(http.Serve(ln, nil))
 }
-
-const basePathMessage = `
-By default, goblog locates the content files and associated
-static content by looking for a %q package
-in your Go workspaces (GOPATH).
-You may use the -base flag to specify an alternate location.
-`

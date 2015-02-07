@@ -8,9 +8,8 @@ Madhav Jha
 Before you guys crucify me for blatantly ripping off [[http://blog.golang.org/][the (original) Go Blog]], let
 me tell you a little more about the genesis of this blog.
 
-The following program prints the current time each second and then exits after
-three seconds. Try running it.
+The following program prints the Fibonacci numbers.
 
-.play -edit playground/time.go /^func main/,$
+.play -edit playground/time.go /^func fibonacci/,/^func main/-1
 
-How does this work? It is a collaboration between the back end, front end, and client.
+How does it work?

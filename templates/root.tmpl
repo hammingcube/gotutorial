@@ -107,10 +107,10 @@
 </div><!-- #page -->
 
 </body>
-<script src="/lib/godoc/jquery.js"></script>
-<script src="/lib/godoc/playground.js"></script>
-<script src="/lib/godoc/play.js"></script>
-<script src="/lib/godoc/godocs.js"></script>
+<script src="static/jquery.js"></script>
+<script src="static/playground.js"></script>
+<script src="static/play.js"></script>
+<!--script src="static/godocs.js"></script-->
 <script>
 $(function() {
 	// Insert line numbers for all playground elements.
@@ -137,7 +137,8 @@ $(function() {
 		});
 	});
 
-	initPlayground(new HTTPTransport());
+	initPlayground(new SocketTransport());
+	//initPlayground(new HTTPTransport());
 });
 </script>
 </html>
