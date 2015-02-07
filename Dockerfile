@@ -2,13 +2,8 @@
 # and a workspace (GOPATH) configured at /go.
 FROM golang
 
-# Copy the local package files to the container's workspace.
-ADD . /go/src/github.com/maddyonline/gotutorial
 
-# Build the outyet command inside the container.
-# (You may fetch or manage dependencies here,
-# either manually or with a tool like "godep".)
-RUN go install github.com/maddyonline/gotutorial
+RUN go get github.com/maddyonline/gotutorial
 
 # Run the outyet command by default when the container starts.
 ENTRYPOINT /go/bin/gotutorial -base="/go/src/github.com/maddyonline/gotutorial"
