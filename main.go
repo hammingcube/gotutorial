@@ -1,20 +1,24 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"net/http"
 	"log"
+	"net/http"
 )
 
+var (
+	httpFlag = flag.String("http", "localhost:8080", "HTTP listen address")
+)
 
 func handleHelloRoute(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello World\n")
 }
 
 func main() {
+	flag.Parse()
+	log.Printf("Listening on %s\n", *httpFlag)
+
 	http.HandleFunc("/hello", handleHelloRoute)
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
-	}
+	log.Fatal(http.ListenAndServe(*httpFlag, nil))
 }
