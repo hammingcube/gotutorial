@@ -16,25 +16,26 @@ func handleHelloRoute(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello World\n")
 }
 
-func main() {
-	httpAddr := flag.String("http", "127.0.0.1:3999", "HTTP service address (e.g., '127.0.0.1:3999')")
-	flag.StringVar(&basePath, "base", "", "base path for slide template and static resources")
-	flag.Parse()
-
-	if basePath == "" {
+func initBasePath(basePath *string) {
+	if *basePath == "" {
 		p, err := build.Default.Import(basePkg, "", build.FindOnly)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Couldn't find blog files: %v\n", err)
 			fmt.Fprintf(os.Stderr, basePathMessage, basePkg)
 			os.Exit(1)
 		}
-		basePath = p.Dir
+		*basePath = p.Dir
 	}
+	log.Printf("Using %s as directory for content and static files.", *basePath)
+}
+
+func main() {
+	httpAddr := flag.String("http", "127.0.0.1:3999", "HTTP service address (e.g., '127.0.0.1:3999')")
+	flag.StringVar(&basePath, "base", "", "base path for slide template and static resources")
+	flag.Parse()
+	initBasePath(&basePath)
 	
-	log.Printf("Using %s as directory for content and static files.", basePath)
-
 	http.HandleFunc("/hello", handleHelloRoute)
-
 	log.Printf("Listening on %s\n", *httpAddr)
 	log.Fatal(http.ListenAndServe(*httpAddr, nil))
 }
