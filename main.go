@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"go/build"
 	"os"
+	_ "golang.org/x/tools/blog"
+	_ "golang.org/x/tools/playground/socket"
 )
 
 const basePkg = "github.com/maddyonline/gotutorial"
@@ -31,10 +33,13 @@ func initBasePath(basePath *string) {
 
 func main() {
 	httpAddr := flag.String("http", "127.0.0.1:3999", "HTTP service address (e.g., '127.0.0.1:3999')")
-	flag.StringVar(&basePath, "base", "", "base path for slide template and static resources")
+	basePath := flag.String("base", "", "base path for slide template and static resources")
+	originHost := flag.String("orighost", "", "host component of web origin URL (e.g., 'localhost')")
 	flag.Parse()
-	initBasePath(&basePath)
-	
+	initBasePath(basePath)
+
+	fmt.Printf(*originHost)
+
 	http.HandleFunc("/hello", handleHelloRoute)
 	log.Printf("Listening on %s\n", *httpAddr)
 	log.Fatal(http.ListenAndServe(*httpAddr, nil))
