@@ -8,7 +8,7 @@ ADD . /go/src/github.com/maddyonline/gotutorial
 # Build the outyet command inside the container.
 # (You may fetch or manage dependencies here,
 # either manually or with a tool like "godep".)
-RUN go install github.com/golang/maddyonline/gotutorial
+RUN go install github.com/maddyonline/gotutorial
 
 # Run the outyet command by default when the container starts.
 ENTRYPOINT /go/bin/gotutorial -base="/go/src/github.com/maddyonline/gotutorial"
