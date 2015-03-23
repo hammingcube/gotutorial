@@ -11,8 +11,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"golang.org/x/tools/blog"
-	"golang.org/x/tools/playground/socket"
+	"github.com/maddyonline/tools/blog"
+	"github.com/maddyonline/tools/playground/socket"
+	//"golang.org/x/tools/blog"
+	//"golang.org/x/tools/playground/socket"
 )
 
 const (
