@@ -27,14 +27,31 @@ var (
 	baseFlag   = flag.String("base", "", "base path for articles and resources")
 )
 
+func dirExists(dir string) bool {
+	src, err := os.Stat(dir)
+	if err != nil || !src.IsDir() {
+      return false
+  	} 
+  	return true
+}
+
 func main() {
 	flag.Parse()
 	gopath :=  os.Getenv("GOPATH")
+	found := false
 	if *baseFlag == "" {
 		// By default, the base is the blog package location.
-		*baseFlag = filepath.Join(filepath.Join(gopath, "src"), packagePath)
-		fmt.Fprintf(os.Stderr, "Trying %s", *baseFlag)
-		//os.Exit(1)
+		for _, trailingPath := range []string{packagePath, "app"} {
+			*baseFlag = filepath.Join(filepath.Join(gopath, "src"), trailingPath)
+			fmt.Fprintf(os.Stderr, "Trying %s\n", *baseFlag)
+			if dirExists(*baseFlag) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			os.Exit(1)
+		}
 	}
 
 	ln, err := net.Listen("tcp", *httpFlag)
