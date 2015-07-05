@@ -29,10 +29,10 @@ var (
 
 func main() {
 	flag.Parse()
-
+	gopath :=  os.Getenv("GOPATH")
 	if *baseFlag == "" {
 		// By default, the base is the blog package location.
-		*baseFlag = filepath.Join("/go/src", packagePath)
+		*baseFlag = filepath.Join(filepath.Join(gopath, "src"), packagePath)
 		fmt.Fprintf(os.Stderr, "Trying %s", *baseFlag)
 		//os.Exit(1)
 	}
