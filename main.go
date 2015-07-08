@@ -22,7 +22,7 @@ const (
 )
 
 var (
-	httpFlag   = flag.String("http", "localhost:8080", "HTTP listen address")
+	httpFlag   = flag.String("http", "0.0.0.0:8080", "HTTP listen address")
 	originFlag = flag.String("origin", "", "web socket origin for Go Playground (e.g. localhost)")
 	baseFlag   = flag.String("base", "", "base path for articles and resources")
 )
