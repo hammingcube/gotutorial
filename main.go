@@ -88,5 +88,6 @@ func main() {
 	http.Handle("/static/", http.FileServer(http.Dir(*baseFlag)))
 	http.Handle("/socket", socket.NewHandler(origin))
 	http.Handle("/", srv)
+	log.Println("Starting the server...")
 	log.Fatal(http.Serve(ln, nil))
 }
